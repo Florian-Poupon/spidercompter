@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=DynaPuff:wght@400;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-spidey-red-soft: #ff4629;
+  --color-spidey-blue-soft: #1e62b3;
+  --color-spidey-yellow-pastel: #fed36c;
+  --color-spidey-gray-light: #fff9eb;
+  --color-spidey-gray-medium: #d1d5db;
+  --color-black-soft: #222831;
+  --font-dynapuff: "DynaPuff", system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Forcer la génération des classes de couleur pour Tailwind v4 (ne pas supprimer) */
+.bg-\[var\(--color-spidey-red-soft\)\] {
+}
+.bg-\[var\(--color-spidey-blue-soft\)\] {
+}
+.bg-\[var\(--color-spidey-yellow-pastel\)\] {
+}
+
+body {
+  font-family: var(--font-dynapuff);
+}
