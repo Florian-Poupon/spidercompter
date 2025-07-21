@@ -77,30 +77,34 @@ export default function CountdownCalendar() {
   let globalIdx = 0;
 
   return (
-    <div className="relative bg-[#FFF9F3] flex flex-col items-center p-8 gap-8 font-[var(--font-dynapuff)] overflow-x-auto">
+    <div className="relative mb-12 bg-[#FFF9F3] flex flex-col items-center p-8 gap-2 font-[var(--font-dynapuff)] overflow-x-auto">
       {/* Fond crème sur tout le body */}
       <style>{`body { background: #FFF9F3 !important; }`}</style>
 
       {/* Header titre + mascotte, z-30 pour rester au-dessus du fond */}
-      <div className="w-full max-w-2x flex items-center justify-between mt-2 mb-4 z-30  bg-white p-5 rounded-xl shadow-sm">
+      <div className="w-full max-w-2x flex items-center justify-between mt-2 mb-4 z-30  bg-white p-5 rounded-4xl shadow-md">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-spidey-red-soft drop-shadow text-left leading-tight">Combien de dodos avant la rentrée ?</h1>
         <SpiderMascot className="w-25 -4 h-auto sm:w-16 sm:h-16 ml-2" />
       </div>
 
       {/* Bandeau de progression visuelle */}
-      <div className="fixed bottom-0  bg-white p-4 w-full max-w-2xl flex items-center justify-center  z-100">
-        {/* Compteur sticky */}
-        <div className="flex-1 p-4 h-4 bg-spidey-blue-soft/20 rounded-full overflow-hidden flex items-center">
-          <span className={`text-xl sm:text-4xl w-auto md:text-4xl font-extrabold text-spidey-blue-soft flex-1 text-left ${justCheckedIdx !== null ? "animate-bounce" : ""}`}>
-            Encore {uncheckedCount} dodos !
-          </span>
-          <div
-            className="h-4 bg-spidey-blue-soft rounded-full transition-all duration-500"
-            style={{ width: `${Math.round((checked.length / allDays.length) * 100)}%` }}
-            aria-label={`Progression : ${checked.length} sur ${allDays.length} jours cochés`}
-          ></div>
+      <div className="fixed bottom-0 bg-white p-4 w-full max-w-2xl flex flex-col items-center justify-center z-100">
+        {/* Texte de progression au-dessus */}
+        <span className={`text-xl sm:text-4xl md:text-4xl font-extrabold text-spidey-blue-soft text-center mb-2 ${justCheckedIdx !== null ? "animate-bounce" : ""}`}>
+          Encore {uncheckedCount} dodos !
+        </span>
+
+        {/* Barre de progression */}
+        <div className="w-full flex items-center">
+          <div className="flex-1 h-4 bg-spidey-blue-soft/20 rounded-full overflow-hidden flex items-center">
+            <div
+              className="h-4 bg-spidey-blue-soft rounded-full transition-all duration-500"
+              style={{ width: `${Math.round((checked.length / allDays.length) * 100)}%` }}
+              aria-label={`Progression : ${checked.length} sur ${allDays.length} jours cochés`}
+            ></div>
+          </div>
+          <span className="ml-3 text-spidey-blue-soft font-bold text-lg min-w-[48px] text-center">{Math.round((checked.length / allDays.length) * 100)}%</span>
         </div>
-        <span className="ml-3 text-spidey-blue-soft font-bold text-lg min-w-[48px] text-center">{Math.round((checked.length / allDays.length) * 100)}%</span>
       </div>
 
       {/* Célébration finale */}

@@ -17,51 +17,70 @@ function getCalendarGrid(days) {
   const fullGrid = [...emptyBefore, ...days, ...emptyAfter];
   const weeks = [];
   for (let i = 0; i < fullGrid.length; i += 7) {
-    weeks.push(fullGrid.slice(i, i + 7));
+    // On ajoute une case vide en plus pour chaque semaine pour avoir 8 cases (2 lignes de 4)
+    const weekSlice = fullGrid.slice(i, i + 7);
+    if (weekSlice.length < 8) {
+      // On complète à 8 si besoin
+      weekSlice.push({ empty: true, key: `extra-empty-${i}` });
+    }
+    weeks.push(weekSlice);
   }
   return weeks;
+}
+
+// Helper pour savoir si une sous-ligne contient un vrai jour
+function hasRealDay(days) {
+  return days.some((day) => !day.empty);
 }
 
 export default function CalendarMonth({ month, onCheck }) {
   const weeks = getCalendarGrid(month.days);
 
   return (
-    <div className="mb-10 font-[var(--font-dynapuff)]">
+    <div className="mb-4 mb-8 bg-white  p-6 rounded-4xl shadow-sm">
       {/* Titre du mois */}
-      <div className="sticky top-0 z-30 flex justify-center mb-5">
-        <div className="bg-spidey-blue-soft text-white w-full max-w-[350px] items-center text-center text-3xl font-extrabold rounded-full px-8 py-3 shadow">
+      <div className="sticky top-0 z-30 flex justify-center mb-8">
+        <div className="bg-spidey-blue-soft text-white w-full max-w-[350px] items-center text-center text-3xl font-extrabold rounded-full px-8 py-3 shadow-md">
           {month.label.charAt(0).toUpperCase() + month.label.slice(1)}
         </div>
       </div>
-      {/* Grille calendrier en mode semainier */}
-      <div className="flex flex-col gap-12 items-center w-full">
+      {/* Grille calendrier */}
+      <div className="flex flex-col gap-4 items-center w-full">
         {weeks.map((week, i) => (
-          <div key={i} className="flex flex-col gap-2 items-center w-full">
-            {/* Lundi à vendredi */}
-            <div className="grid grid-cols-5 gap-2  max-w-xl mx-auto">
-              {week
-                .slice(0, 5)
-                .map((day, idx) =>
-                  day.empty ? (
-                    <div key={day.key} className="aspect-square w-full h-full" />
-                  ) : (
-                    <CalendarDay key={day.date.toISOString()} day={day} badge={day.badge} onClick={() => !day.isChecked && onCheck(day.idx)} />
-                  )
-                )}
+          <React.Fragment key={i}>
+            <div className="flex flex-col gap-3 items-center w-full">
+              {/* Ligne 1 : cases 0 à 3 */}
+              {hasRealDay(week.slice(0, 4)) && (
+                <div className="grid grid-cols-4 gap-2 w-full max-w-2xl mx-auto">
+                  {week
+                    .slice(0, 4)
+                    .map((day, idx) =>
+                      day.empty ? (
+                        <div key={day.key} className="aspect-square w-full h-full" />
+                      ) : (
+                        <CalendarDay key={day.date.toISOString()} day={day} badge={day.badge} onClick={() => !day.isChecked && onCheck(day.idx)} />
+                      )
+                    )}
+                </div>
+              )}
+              {/* Ligne 2 : cases 4 à 7 */}
+              {hasRealDay(week.slice(4, 8)) && (
+                <div className="grid grid-cols-4 gap-2 w-full max-w-2xl mx-auto">
+                  {week
+                    .slice(4, 8)
+                    .map((day, idx) =>
+                      day.empty ? (
+                        <div key={day.key} className="aspect-square w-full h-full" />
+                      ) : (
+                        <CalendarDay key={day.date.toISOString()} day={day} badge={day.badge} onClick={() => !day.isChecked && onCheck(day.idx)} />
+                      )
+                    )}
+                </div>
+              )}
             </div>
-            {/* Samedi et dimanche */}
-            <div className="grid grid-cols-5 gap-2  max-w-xl mx-auto">
-              {week
-                .slice(5)
-                .map((day, idx) =>
-                  day.empty ? (
-                    <div key={day.key} className="aspect-square w-full h-full" />
-                  ) : (
-                    <CalendarDay key={day.date.toISOString()} day={day} badge={day.badge} onClick={() => !day.isChecked && onCheck(day.idx)} />
-                  )
-                )}
-            </div>
-          </div>
+            {/* Séparateur entre semaines (sauf dernière) */}
+            {i < weeks.length - 1 && <div className="w-full max-w-2xl mx-auto border-b border-gray-300 my-4"></div>}
+          </React.Fragment>
         ))}
       </div>
     </div>

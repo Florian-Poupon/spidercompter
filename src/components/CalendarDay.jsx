@@ -4,7 +4,7 @@ export default function CalendarDay({ day, badge = null, onClick, big = false })
   const isChecked = day.isChecked;
 
   // Taille des cases (option big pour semainier)
-  const sizeClass = big ? "w-full aspect-square text-lg sm:text-2xl min-w-[44px] min-h-[44px]" : "w-16 h-16 min-w-[3.2rem] min-h-[3.2rem] text-base sm:text-lg";
+  const sizeClass = big ? "w-full aspect-square text-lg sm:text-2xl min-w-[44px] min-h-[44px]" : "aspect-square w-auto h-full min-w-[3.2rem] min-h-[3.2rem] text-xl sm:text-lg";
 
   // Détermine fond, texte et bordure
   let bg, textColor, borderColor;
@@ -26,7 +26,7 @@ export default function CalendarDay({ day, badge = null, onClick, big = false })
     <button
       type="button"
       className={`
-        flex flex-col items-center justify-center rounded-2xl shadow-lg border-2 ${borderColor}
+        flex flex-col items-center text-center justify-center rounded-2xl shadow-md border-2 ${borderColor}
         ${bg} relative transition-all duration-200 select-none p-3 gap-2
         font-[var(--font-dynapuff)] focus:outline-none focus:ring-2 focus:ring-[var(--color-spidey-blue-soft)]
         ${sizeClass}
@@ -37,15 +37,15 @@ export default function CalendarDay({ day, badge = null, onClick, big = false })
       onClick={isChecked ? undefined : onClick}
       tabIndex={0}
     >
-      <span className={`font-extrabold flex items-center gap-1 ${textColor} ${isChecked ? "line-through" : ""} truncate w-full`}>
+      <span className={`font-extrabold flex items-center text-center gap-1 ${textColor} ${isChecked ? "line-through" : ""} truncate w-full`}>
         {day.label}
         {day.isWeekend && !isChecked && (
           <span className="text-lg ml-1" role="img" aria-label="week-end">
-            ☀️
+            ⭐
           </span>
         )}
       </span>
-      <span className="text-xs sm:text-sm text-[var(--color-black-soft)] opacity-90 truncate w-full">{day.dateLabel}</span>
+      <span className="text-xs text-center sm:text-sm text-[var(--color-black-soft)] opacity-90 truncate w-full">{day.dateLabel}</span>
       {badge && !isChecked && (
         <span className="absolute top-1 right-1 bg-[var(--color-spidey-blue-soft)] text-white text-xs px-2 py-1 rounded-full shadow font-bold flex items-center gap-1 animate-pop">
           <span role="img" aria-label="étoile">
