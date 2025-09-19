@@ -1,42 +1,169 @@
-// Génère un tableau d'objets { date: Date, label: 'J-xx', isWeekend, month, day, dayOfWeek, monthLabel, dateLabel }
-export function generateCalendarDays(startDate, endDate) {
-  const days = [];
-  let current = new Date(startDate);
-  let count = 0;
-  const totalDays = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
-  while (current <= endDate) {
-    const dayOfWeek = (current.getDay() + 6) % 7; // 0 = lundi, 6 = dimanche
-    const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
-    days.push({
-      date: new Date(current),
-      label: `J-${totalDays - count}`,
-      isWeekend,
-      month: current.getMonth(),
-      day: current.getDate(),
-      dayOfWeek,
-      monthLabel: current.toLocaleString("fr-FR", { month: "long" }),
-      dateLabel: current.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }),
-    });
-    current.setDate(current.getDate() + 1);
-    count++;
-  }
-  return days;
+const WEEK_DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+const MONTHS = [
+  "janvier",
+  "février",
+  "mars",
+  "avril",
+  "mai",
+  "juin",
+  "juillet",
+  "août",
+  "septembre",
+  "octobre",
+  "novembre",
+  "décembre",
+];
+
+export function formatDateKey(date) {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
-// Regroupe les jours par mois
-export function groupDaysByMonth(days) {
-  const months = {};
-  days.forEach((d) => {
-    if (!months[d.month]) {
-      months[d.month] = {
-        label: d.monthLabel.charAt(0).toUpperCase() + d.monthLabel.slice(1),
-        days: [],
+export function normaliseDate(date) {
+  const normalised = new Date(date);
+  normalised.setHours(0, 0, 0, 0);
+  return normalised;
+}
+
+function buildDay(date, events = []) {
+  const weekday = (date.getDay() + 6) % 7; // 0 = lundi
+  const monthIndex = date.getMonth();
+  const monthName = MONTHS[monthIndex];
+
+  const isWeekend = weekday >= 5;
+  const hasVacation = events.some((event) => event.type === "vacation");
+  const hasCelebration = events.some((event) => event.type !== "vacation");
+
+  const label = date.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  return {
+    date,
+    iso: formatDateKey(date),
+    day: date.getDate(),
+    month: monthIndex,
+    monthName,
+    weekday,
+    weekdayLabel: WEEK_DAYS[weekday],
+    isWeekend,
+    isToday: isSameDate(date, new Date()),
+    events,
+    hasVacation,
+    hasCelebration,
+    label,
+  };
+}
+
+function isSameDate(a, b) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function capitalise(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+export function createCalendar(year, eventsByDate = new Map()) {
+  const startOfYear = new Date(year, 0, 1);
+  const endOfYear = new Date(year, 11, 31);
+  const days = [];
+
+  for (let cursor = new Date(startOfYear); cursor <= endOfYear; cursor.setDate(cursor.getDate() + 1)) {
+    const current = new Date(cursor);
+    current.setHours(0, 0, 0, 0);
+    const iso = formatDateKey(current);
+    const events = eventsByDate.get(iso) ?? [];
+    days.push(buildDay(current, events));
+  }
+
+  const dayIndexByIso = new Map(days.map((day, index) => [day.iso, index]));
+
+  const months = MONTHS.map((monthName, monthIndex) => {
+    const monthDays = days.filter((day) => day.month === monthIndex);
+    const weeks = [];
+    if (monthDays.length === 0) {
+      return {
+        index: monthIndex,
+        name: capitalise(monthName),
+        title: `${capitalise(monthName)} ${year}`,
+        weeks,
       };
     }
-    months[d.month].days.push(d);
+
+    let week = [];
+    const firstWeekday = monthDays[0].weekday;
+    for (let i = 0; i < firstWeekday; i += 1) {
+      week.push(null);
+    }
+
+    monthDays.forEach((day) => {
+      week.push(day);
+      if (week.length === 7) {
+        weeks.push(week);
+        week = [];
+      }
+    });
+
+    if (week.length > 0) {
+      while (week.length < 7) {
+        week.push(null);
+      }
+      weeks.push(week);
+    }
+
+    return {
+      index: monthIndex,
+      name: capitalise(monthName),
+      title: `${capitalise(monthName)} ${year}`,
+      weeks,
+    };
   });
-  return Object.values(months);
+
+  return {
+    days,
+    months,
+    dayIndexByIso,
+    weekDays: WEEK_DAYS,
+  };
 }
 
-// Jours de la semaine (commence par lundi)
-export const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+export function calculateProgress(checkedCount, totalDays) {
+  if (totalDays <= 0) {
+    return {
+      percentage: 0,
+      remaining: 0,
+    };
+  }
+
+  const clampedChecked = Math.min(checkedCount, totalDays);
+  const remaining = Math.max(totalDays - clampedChecked, 0);
+  const percentage = Math.round((clampedChecked / totalDays) * 100);
+
+  return {
+    percentage,
+    remaining,
+  };
+}
+
+export function computeStreak(days, checkedSet) {
+  let streak = 0;
+  for (let i = 0; i < days.length; i += 1) {
+    const day = days[i];
+    if (!checkedSet.has(day.iso)) {
+      break;
+    }
+    streak += 1;
+  }
+  return streak;
+}
+
