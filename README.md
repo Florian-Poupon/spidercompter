@@ -26,3 +26,8 @@ npm run dev
 npm run lint
 ```
 
+## Déploiement GitHub Pages
+
+- Chaque push sur `main` déclenche le workflow GitHub Actions [`Deploy to GitHub Pages`](.github/workflows/deploy.yml) qui construit l'application (`npm run build`) et publie automatiquement le contenu du dossier `dist`.
+- Pour un déclenchement manuel, utilise l'onglet **Actions** de GitHub et lance le workflow, ou exécute localement `npm run deploy` pour pousser le build statique vers la branche `gh-pages`.
+
