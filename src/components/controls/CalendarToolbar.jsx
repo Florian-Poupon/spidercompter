@@ -1,15 +1,15 @@
-export default function ControlsPanel({
+export default function CalendarToolbar({
   years,
   selectedYear,
   onYearChange,
   autoFill,
   onAutoFillChange,
   onCheckAll,
-  onUncheckAll,
+  onClearAll,
   checkedCount,
   totalDays,
 }) {
-  const allChecked = checkedCount === totalDays && totalDays > 0;
+  const allChecked = totalDays > 0 && checkedCount === totalDays;
   const noneChecked = checkedCount === 0;
 
   return (
@@ -55,7 +55,7 @@ export default function ControlsPanel({
         </button>
         <button
           type="button"
-          onClick={onUncheckAll}
+          onClick={onClearAll}
           className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-rose-300 hover:text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-200"
           disabled={noneChecked}
         >
@@ -63,8 +63,8 @@ export default function ControlsPanel({
         </button>
       </div>
       <p className="text-xs text-slate-500">
-        Astuce : maintiens la touche <kbd className="rounded border border-slate-300 px-1">Maj</kbd> pendant un clic pour
-        inverser le comportement (cocher en continu ou bien un seul jour).
+        Astuce : maintiens la touche <kbd className="rounded border border-slate-300 px-1">Maj</kbd> pendant un clic pour inverser le
+        mode de coche.
       </p>
     </section>
   );

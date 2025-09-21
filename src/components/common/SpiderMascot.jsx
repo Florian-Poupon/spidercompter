@@ -1,4 +1,4 @@
-import mascot from "../assets/SpiderMascot.svg";
+import mascot from "../../assets/SpiderMascot.svg";
 
 export default function SpiderMascot({ className = "", title = "La mascotte Spider" }) {
   return (
